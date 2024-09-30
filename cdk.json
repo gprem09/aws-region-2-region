@@ -1,5 +1,5 @@
 {
-  "app": "node bin/aws-region-2-region.js",
+  "app": "node bin/aws-region-2-region.mjs",
   "watch": {
     "include": [
       "**"
