@@ -1,9 +1,9 @@
-#!/usr/bin/env node
+#!/usr/bin/env
 
-const cdk = require('aws-cdk-lib');
-const { AwsRegion2RegionStack } = require('../lib/aws-region-2-region-stack');
+import { App } from 'aws-cdk-lib';
+import { AwsRegion2RegionStack } from '../lib/aws-region-2-region-stack.mjs';
 
-const app = new cdk.App();
+const app = new App();
 new AwsRegion2RegionStack(app, 'AwsRegion2RegionStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
