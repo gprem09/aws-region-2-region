@@ -1,8 +1,4 @@
-# Welcome to your CDK JavaScript project
-
-This is a blank project for CDK development with JavaScript.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app. The build step is not required when using JavaScript.
+* `sudo npm install -g aws-cdk` - execute this command if cdk has issues with node_modules
 
 ## Useful commands
 
