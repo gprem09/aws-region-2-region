@@ -1,21 +1,45 @@
-#!/usr/bin/env
+#!/usr/bin/env node
 
-import { App } from 'aws-cdk-lib';
-import { AwsRegion2RegionStack } from '../lib/aws-region-2-region-stack.mjs';
+import * as cdk from 'aws-cdk-lib';
+import { LambdaStack } from '../lib/lambda-stack.mjs';
+import { PingDBStack } from '../lib/r2r-stack.mjs';
+import { EC2Client, DescribeRegionsCommand } from "@aws-sdk/client-ec2";
 
-const app = new App();
-new AwsRegion2RegionStack(app, 'AwsRegion2RegionStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
+const app = new cdk.App();
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+const r2rStack = new PingDBStack(app, 'PingDBMain', {
+    env: {
+        account: '731803237567',
+        region: 'us-west-2',   
+    },
+});
 
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
+const ec2Client = new EC2Client({ region: 'us-west-2' });
 
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+async function getRegions() {
+    const command = new DescribeRegionsCommand({});
+    const response = await ec2Client.send(command);
+    return response.Regions.map(region => region.RegionName);
+}
+
+async function deploy() {
+    const regions = await getRegions();
+
+    regions.forEach((region) => {
+        const id = `LambdaStack-${region}`;
+        new LambdaStack(app, id, {
+            table: r2rStack.getTableReference(),
+            env: {
+                account: '731803237567', 
+                region: region,
+            },
+        });
+    });
+
+    app.synth();
+}
+
+deploy().catch(err => {
+    console.error('Error deploying CDK app:', err);
+    process.exit(1);
 });
